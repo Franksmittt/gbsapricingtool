@@ -9,21 +9,23 @@ export default function DashboardAuthGuard({ children }: { children: React.React
   const router = useRouter();
 
   useEffect(() => {
-    // In a real app, you would redirect to a login page.
-    // For now, this is a placeholder.
+    // This effect runs when the user or loading state changes.
+    // If loading is finished and there is still no user, it redirects to the login page.
     if (!isLoading && !user) {
-      console.log("No user found, redirecting...");
-      // router.push('/'); // Uncomment this in a real app
+      router.replace('/login');
     }
   }, [user, isLoading, router]);
 
+  // While checking for a user, or if no user is found, show a loading screen.
+  // This prevents the dashboard from briefly flashing before the redirect occurs.
   if (isLoading || !user) {
     return (
         <div className="flex items-center justify-center h-screen bg-background text-foreground">
-            <p className="text-gray-400">Authenticating...</p>
+            <p className="text-gray-400">Loading Secure Session...</p>
         </div>
     );
   }
 
+  // If loading is complete and a user exists, render the actual dashboard content.
   return <>{children}</>;
 }

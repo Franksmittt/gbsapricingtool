@@ -3,8 +3,8 @@
 import DashboardLayout from "./(dashboard)/layout";
 import PriceListPage from "./(dashboard)/pricelists/page";
 
-// The main page of your site will now be the Price List dashboard.
-// It wraps the PriceListPage with the main DashboardLayout.
+// The main page of your site is the Price List dashboard.
+// It is now fully protected by the authentication guard within DashboardLayout.
 export default function Home() {
   return (
     <DashboardLayout>

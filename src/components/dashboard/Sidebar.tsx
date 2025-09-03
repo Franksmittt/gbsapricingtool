@@ -14,14 +14,14 @@ interface SidebarProps {
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, logout } = useAuth(); // <-- Get the logout function
 
   const navItems = [
     { name: 'Price Lists', href: '/pricelists', icon: BarChart2, roles: ['Boss', 'Manager'] },
     { name: 'Pricing Matrix', href: '/matrix', icon: Table, roles: ['Boss', 'Manager'] },
     { name: 'GP Analysis', href: '/analysis', icon: Calculator, roles: ['Boss', 'Manager'] },
     { name: 'Comparison', href: '/comparison', icon: GitCompareArrows, roles: ['Boss', 'Manager'] },
-    { name: 'Reports', href: '/reports', icon: FileText, roles: ['Boss', 'Manager'] }, // <-- NEW PAGE
+    { name: 'Reports', href: '/reports', icon: FileText, roles: ['Boss', 'Manager'] },
     { name: 'Supplier Costs', href: '/costs', icon: Wrench, roles: ['Boss', 'Manager'] },
     { name: 'Settings', href: '/settings', icon: Settings, roles: ['Boss'] },
   ];
@@ -60,7 +60,9 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         </ul>
       </nav>
       <div className="p-4 border-t border-white/10">
+        {/* The logout button now calls the logout function */}
         <button
+            onClick={logout}
             className="flex w-full items-center px-4 py-3 my-1 rounded-md text-gray-400 hover:bg-red-900/50 hover:text-red-300 transition-colors"
         >
             <LogOut className="h-5 w-5 mr-3" />
