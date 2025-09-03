@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "./AuthContext"; // We'll create this next
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,25 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "YourBrand - Digital Solutions That Drive Results",
-  description: "We create stunning websites and applications that drive business growth. Transform your ideas into powerful digital solutions.",
-  keywords: ["web development", "digital solutions", "web design", "mobile apps"],
-  authors: [{ name: "YourBrand Team" }],
-  openGraph: {
-    title: "YourBrand - Digital Solutions That Drive Results",
-    description: "We create stunning websites and applications that drive business growth.",
-    type: "website",
-    locale: "en_US",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "YourBrand - Digital Solutions That Drive Results",
-    description: "We create stunning websites and applications that drive business growth.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  title: "GBSA Pricing Dashboard",
+  description: "Advanced pricing calculator for Global Batteries SA",
 };
 
 export default function RootLayout({
@@ -40,11 +24,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

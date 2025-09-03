@@ -1,15 +1,14 @@
-import Header from '@/components/Header';
-import Hero from '@/components/Hero';
-import Footer from '@/components/Footer';
+'use client';
 
+import DashboardLayout from "./(dashboard)/layout";
+import PriceListPage from "./(dashboard)/pricelists/page";
+
+// The main page of your site will now be the Price List dashboard.
+// It wraps the PriceListPage with the main DashboardLayout.
 export default function Home() {
   return (
-    <div className="min-h-screen">
-      <Header />
-      <main>
-        <Hero />
-      </main>
-      <Footer />
-    </div>
+    <DashboardLayout>
+      <PriceListPage />
+    </DashboardLayout>
   );
 }

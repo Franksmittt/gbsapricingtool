@@ -6,25 +6,26 @@ import { motion } from 'framer-motion';
 interface CardProps {
   children: ReactNode;
   className?: string;
-  hover?: boolean;
-  padding?: 'sm' | 'md' | 'lg';
+  hoverEffect?: boolean;
+  padding?: 'none' | 'sm' | 'md' | 'lg';
 }
 
-const Card = ({ children, className = '', hover = true, padding = 'md' }: CardProps) => {
+const Card = ({ children, className = '', hoverEffect = false, padding = 'md' }: CardProps) => {
   const paddings = {
+    none: 'p-0',
     sm: 'p-4',
     md: 'p-6',
     lg: 'p-8'
   };
   
-  const baseClasses = `bg-white rounded-lg shadow-md border border-gray-200 ${paddings[padding]} ${className}`;
+  const baseClasses = `bg-gray-800 border border-white/10 shadow-soft rounded-lg ${paddings[padding]} ${className}`;
   
-  if (hover) {
+  if (hoverEffect) {
     return (
       <motion.div
         whileHover={{ y: -5 }}
         transition={{ duration: 0.3 }}
-        className={`${baseClasses} hover:shadow-xl transition-shadow duration-300`}
+        className={`${baseClasses} hover:border-red-500/50 transition-colors`}
       >
         {children}
       </motion.div>

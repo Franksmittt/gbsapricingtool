@@ -1,0 +1,2533 @@
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\AuthContext.tsx
+================================================================================
+'use client';
+
+import React, { createContext, useState, useContext, ReactNode } from 'react';
+// FIX: Removed unused 'UserRole' import
+import { User } from '@/lib/types';
+
+interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// A mock user for demonstration purposes
+const mockBossUser: User = { id: 'user-boss', name: 'Frank Smit', role: 'Boss' };
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  // FIX: Removed unused 'setUser' and 'setIsLoading' variables.
+  const [user] = useState<User | null>(mockBossUser);
+  const [isLoading] = useState(false); // Set to false since we have a default user
+
+  return (
+    <AuthContext.Provider value={{ user, isLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\favicon.ico
+================================================================================
+[Could not read file: 'utf-8' codec can't decode byte 0x96 in position 50: invalid start byte]
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\globals.css
+================================================================================
+@import "tailwindcss";
+:root {
+  --background: #111111; /* Charcoal/Dark Gray */
+  --foreground: #f1f1f1; /* Light Gray/White text */
+  
+  /* Brand Colors - Red Accent */
+  --color-primary-500: #dc2626; /* Main Red Accent */
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Grid pattern utility (adjusted for dark theme) */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 25px 25px;
+}
+
+/* Print-specific styles */
+@layer utilities {
+  /* This rule applies only to the screen view to hide the print layout */
+  @media screen {
+    .print-section {
+      display: none;
+    }
+  }
+  
+  @media print {
+    /* --- FIX ADDED HERE --- */
+    /* This forces the browser to print background colors and images. */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
+    /* Hide elements that should not be printed */
+    .no-print {
+      display: none !important;
+    }
+    
+    /* Make the print section visible and ensure it's the only thing that shows */
+    body * {
+      visibility: hidden;
+    }
+    .print-section, .print-section * {
+      visibility: visible;
+    }
+    .print-section {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+    }
+    
+    /* General print styling for a clean page */
+    body {
+      background: #ffffff !important;
+      color: #000000 !important;
+      font-size: 10pt;
+    }
+    .print-container {
+        background-color: #ffffff !important;
+        border: none !important;
+    }
+    .print-text-color {
+        color: #000000 !important;
+    }
+    .print-header-bg {
+        background-color: #f3f4f6 !important;
+    }
+  }
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\layout.tsx
+================================================================================
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+import { AuthProvider } from "./AuthContext"; // We'll create this next
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "GBSA Pricing Dashboard",
+  description: "Advanced pricing calculator for Global Batteries SA",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" className="dark">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+      >
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
+    </html>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\not-found.tsx
+================================================================================
+'use client';
+
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Home, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+
+export default function NotFound() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4">
+      <div className="max-w-md w-full text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-8xl font-bold text-blue-600 mb-4"
+          >
+            404
+          </motion.div>
+          
+          <motion.h1
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-2xl font-bold text-gray-900 mb-4"
+          >
+            Page Not Found
+          </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="text-gray-600 mb-8"
+          >
+            Sorry, we couldn&apos;t find the page you&apos;re looking for. 
+            It might have been moved, deleted, or you entered the wrong URL.
+          </motion.p>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              <Home className="w-4 h-4 mr-2" />
+              Go Home
+            </Link>
+            
+            <button
+              onClick={() => window.history.back()}
+              className="inline-flex items-center justify-center border-2 border-blue-600 text-blue-600 px-6 py-3 rounded-full font-medium hover:bg-blue-600 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Go Back
+            </button>
+          </motion.div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\page.tsx
+================================================================================
+'use client';
+
+import DashboardLayout from "./(dashboard)/layout";
+import PriceListPage from "./(dashboard)/pricelists/page";
+
+// The main page of your site will now be the Price List dashboard.
+// It wraps the PriceListPage with the main DashboardLayout.
+export default function Home() {
+  return (
+    <DashboardLayout>
+      <PriceListPage />
+    </DashboardLayout>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\(dashboard)\DashboardAuthGuard.tsx
+================================================================================
+'use client';
+
+import { useAuth } from '@/app/AuthContext';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+export default function DashboardAuthGuard({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    // In a real app, you would redirect to a login page.
+    // For now, this is a placeholder.
+    if (!isLoading && !user) {
+      console.log("No user found, redirecting...");
+      // router.push('/'); // Uncomment this in a real app
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading || !user) {
+    return (
+        <div className="flex items-center justify-center h-screen bg-background text-foreground">
+            <p className="text-gray-400">Authenticating...</p>
+        </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\(dashboard)\layout.tsx
+================================================================================
+'use client';
+
+import { useState } from 'react';
+import Sidebar from '@/components/dashboard/Sidebar';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import DashboardAuthGuard from './DashboardAuthGuard';
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  return (
+    <DashboardAuthGuard>
+      <div className="flex h-screen bg-background text-foreground">
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader onMenuClick={() => setIsSidebarOpen(true)} />
+          <main className="flex-1 overflow-y-auto bg-grid-pattern">
+            <div className="p-6 md:p-8">
+              {children}
+            </div>
+          </main>
+        </div>
+      </div>
+    </DashboardAuthGuard>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\(dashboard)\analysis\page.tsx
+================================================================================
+'use client';
+
+import { useMemo, useState } from 'react';
+import { usePricingStore } from '@/store/pricingStore';
+import { calculateAllPrices } from '@/lib/calculations';
+import PriceControls from '@/components/dashboard/PriceControls';
+import ComparisonTable from '@/components/dashboard/ComparisonTable';
+import { SKU, Brand } from '@/lib/types';
+import { SELLING_BRANDS } from '@/data/initialData';
+
+export default function ComparisonPage() {
+  const [selectedBrand, setSelectedBrand] = useState<Brand>(SELLING_BRANDS[0]);
+
+  const useComparisonData = () => {
+    const { supplierCosts, desiredGPs, rounding, includeVAT, activeTier } = usePricingStore();
+
+    return useMemo(() => {
+      const albertonData = calculateAllPrices(supplierCosts, 'Alberton', desiredGPs, rounding, includeVAT);
+      const vanderbijlparkData = calculateAllPrices(supplierCosts, 'Vanderbijlpark', desiredGPs, rounding, includeVAT);
+      
+      const comparisonResult = [];
+      
+      for (const sku in supplierCosts) {
+        const skuTyped = sku as SKU;
+        const costs = supplierCosts[skuTyped];
+        
+        // --- THIS IS THE CORRECTED LOGIC ---
+        // It correctly defines brandCost as a number and uses the right cost source.
+        let brandCost = 0;
+        if (['Exide', 'Willard'].includes(selectedBrand)) {
+            // For anchor brands, use their direct invoice price.
+            brandCost = costs[selectedBrand]?.invoicePrice || 0;
+        } else {
+            // For house brands, use the adjusted cost from Rezist.
+            const rezistCost = costs['Rezist'] || { invoicePrice: 0, scrapLoading: 0 };
+            brandCost = rezistCost.invoicePrice - rezistCost.scrapLoading;
+        }
+        
+        if (!costs.Exide?.invoicePrice || !costs.Willard?.invoicePrice) continue;
+
+        const albertonPrice = albertonData[skuTyped]?.[activeTier]?.[selectedBrand] || 0;
+        const vanderbijlparkPrice = vanderbijlparkData[skuTyped]?.[activeTier]?.[selectedBrand] || 0;
+        
+        const vatMultiplier = includeVAT ? 1.15 : 1;
+        const albertonPriceExVat = albertonPrice / vatMultiplier;
+        const vanderbijlparkPriceExVat = vanderbijlparkPrice / vatMultiplier;
+
+        const albertonProfit = albertonPriceExVat - brandCost;
+        const vanderbijlparkProfit = vanderbijlparkPriceExVat - brandCost;
+
+        const albertonGp = albertonPriceExVat > 0 ? (albertonProfit / albertonPriceExVat) * 100 : 0;
+        const vanderbijlparkGp = vanderbijlparkPriceExVat > 0 ? (vanderbijlparkProfit / vanderbijlparkPriceExVat) * 100 : 0;
+
+        comparisonResult.push({
+          sku: skuTyped,
+          albertonPrice,
+          vanderbijlparkPrice,
+          albertonProfit,
+          vanderbijlparkProfit,
+          albertonGp,
+          vanderbijlparkGp,
+          priceDiff: vanderbijlparkPrice - albertonPrice,
+          profitDiff: vanderbijlparkProfit - albertonProfit,
+          gpDiff: vanderbijlparkGp - albertonGp,
+        });
+      }
+      return comparisonResult;
+    }, [supplierCosts, desiredGPs, rounding, includeVAT, activeTier, selectedBrand]);
+  };
+
+  const comparisonData = useComparisonData();
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-white">Branch Price Comparison</h1>
+        <p className="text-gray-400">Side-by-side analysis of Alberton vs. Vanderbijlpark pricing.</p>
+      </div>
+      <PriceControls />
+      <ComparisonTable 
+        data={comparisonData}
+        brands={SELLING_BRANDS}
+        selectedBrand={selectedBrand}
+        onBrandChange={setSelectedBrand}
+      />
+    </div>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\(dashboard)\comparison\page.tsx
+================================================================================
+'use client';
+
+import { useMemo, useState } from 'react';
+import { usePricingStore } from '@/store/pricingStore';
+import { calculateAllPrices } from '@/lib/calculations';
+import PriceControls from '@/components/dashboard/PriceControls';
+import ComparisonTable from '@/components/dashboard/ComparisonTable';
+import { SKU, Brand } from '@/lib/types';
+import { SELLING_BRANDS } from '@/data/initialData';
+
+export default function ComparisonPage() {
+  const [selectedBrand, setSelectedBrand] = useState<Brand>(SELLING_BRANDS[0]);
+
+  const useComparisonData = () => {
+    const { supplierCosts, desiredGPs, rounding, includeVAT, activeTier } = usePricingStore();
+
+    return useMemo(() => {
+      const albertonData = calculateAllPrices(supplierCosts, 'Alberton', desiredGPs, rounding, includeVAT);
+      const vanderbijlparkData = calculateAllPrices(supplierCosts, 'Vanderbijlpark', desiredGPs, rounding, includeVAT);
+      
+      const comparisonResult = [];
+      
+      for (const sku in supplierCosts) {
+        const skuTyped = sku as SKU;
+        const costs = supplierCosts[skuTyped];
+        
+        // --- LOGIC CORRECTION IS HERE ---
+        // Determine the correct cost basis for the selected brand.
+        let brandCost = 0;
+        if (['Exide', 'Willard'].includes(selectedBrand)) {
+            // For anchor brands, use their direct invoice price.
+            brandCost = costs[selectedBrand]?.invoicePrice || 0;
+        } else {
+            // For house brands, use the adjusted cost from Rezist.
+            const rezistCost = costs['Rezist'] || { invoicePrice: 0, scrapLoading: 0 };
+            brandCost = rezistCost.invoicePrice - rezistCost.scrapLoading;
+        }
+        
+        if (!costs.Exide?.invoicePrice || !costs.Willard?.invoicePrice) continue;
+
+        const albertonPrice = albertonData[skuTyped]?.[activeTier]?.[selectedBrand] || 0;
+        const vanderbijlparkPrice = vanderbijlparkData[skuTyped]?.[activeTier]?.[selectedBrand] || 0;
+        
+        const vatMultiplier = includeVAT ? 1.15 : 1;
+        const albertonPriceExVat = albertonPrice / vatMultiplier;
+        const vanderbijlparkPriceExVat = vanderbijlparkPrice / vatMultiplier;
+
+        const albertonProfit = albertonPriceExVat - brandCost;
+        const vanderbijlparkProfit = vanderbijlparkPriceExVat - brandCost;
+
+        const albertonGp = albertonPriceExVat > 0 ? (albertonProfit / albertonPriceExVat) * 100 : 0;
+        const vanderbijlparkGp = vanderbijlparkPriceExVat > 0 ? (vanderbijlparkProfit / vanderbijlparkPriceExVat) * 100 : 0;
+
+        comparisonResult.push({
+          sku: skuTyped,
+          albertonPrice,
+          vanderbijlparkPrice,
+          albertonProfit,
+          vanderbijlparkProfit,
+          albertonGp,
+          vanderbijlparkGp,
+          priceDiff: vanderbijlparkPrice - albertonPrice,
+          profitDiff: vanderbijlparkProfit - albertonProfit,
+          gpDiff: vanderbijlparkGp - albertonGp,
+        });
+      }
+      return comparisonResult;
+    }, [supplierCosts, desiredGPs, rounding, includeVAT, activeTier, selectedBrand]);
+  };
+
+  const comparisonData = useComparisonData();
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-white">Branch Price Comparison</h1>
+        <p className="text-gray-400">Side-by-side analysis of Alberton vs. Vanderbijlpark pricing.</p>
+      </div>
+      <PriceControls />
+      <ComparisonTable 
+        data={comparisonData}
+        brands={SELLING_BRANDS}
+        selectedBrand={selectedBrand}
+        onBrandChange={setSelectedBrand}
+      />
+    </div>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\(dashboard)\costs\page.tsx
+================================================================================
+'use client';
+
+import SupplierCostsTable from '@/components/dashboard/SupplierCostsTable';
+
+export default function CostsPage() {
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-white">Supplier Cost Management</h1>
+        <p className="text-gray-400">Update your Ex. VAT cost prices here. Changes will reflect across the app instantly.</p>
+      </div>
+      <SupplierCostsTable />
+    </div>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\(dashboard)\matrix\page.tsx
+================================================================================
+'use client';
+
+import { usePricingStore } from '@/store/pricingStore';
+import { calculateAllPrices } from '@/lib/calculations';
+import { SKU, Brand, Supplier } from '@/lib/types';
+import Card from '@/components/ui/Card';
+import { formatCurrency } from '@/lib/formatters';
+import { Info } from 'lucide-react';
+
+const houseBrands: Brand[] = ['Global', 'Novax 18', 'Novax Premium'];
+const localSuppliers: Supplier[] = ['Rezist', 'Enertec', 'Electro City'];
+
+export default function MatrixPage() {
+  const { supplierCosts, desiredGPs, updateDesiredGP } = usePricingStore();
+  const pricesExVat = calculateAllPrices(supplierCosts, 'Alberton', desiredGPs, 'NearestR50', false);
+
+  const handleGpChange = (sku: SKU, tier: 'gTierGP' | 'bTierGP' | 'sTierGP', value: string) => {
+    const newGp = parseFloat(value);
+    const currentGps = desiredGPs[sku] || { gTierGP: 20, bTierGP: 30, sTierGP: 40 };
+    if (!isNaN(newGp) && newGp >= 0 && newGp < 100) {
+      const updatedGps = { ...currentGps, [tier]: newGp };
+      updateDesiredGP(sku, updatedGps.gTierGP, updatedGps.bTierGP, updatedGps.sTierGP);
+    }
+  };
+
+  const getProfitability = (sellPrice: number, cost: number) => {
+    if(cost <= 0) return <span className="text-gray-500">No Cost</span>;
+    const profit = sellPrice - cost;
+    const gp = sellPrice > 0 ? (profit / sellPrice) * 100 : 0;
+    const color = gp < 15 ? 'text-red-400' : gp < 30 ? 'text-yellow-400' : 'text-green-400';
+    return <span className={color}>{gp.toFixed(1)}%</span>;
+  };
+
+  const ProfitabilityAnalysis = ({ sku, sellPrice }: { sku: SKU, sellPrice: number}) => (
+    <div className="relative group flex items-center gap-2">
+      <span className="italic">Profitability Analysis</span>
+      <Info className="h-4 w-4 text-gray-500 cursor-pointer" />
+      <div className="absolute z-10 bottom-full mb-2 w-64 bg-gray-900 border border-gray-600 rounded-lg shadow-lg p-3 text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+        <h4 className="font-bold text-white mb-2">Adjusted Cost GP% (S-Tier)</h4>
+        <p className="text-gray-400 mb-2">GP% if sourcing a house brand from local suppliers using their cost minus scrap value.</p>
+        <ul className="space-y-1">
+          {localSuppliers.map(supplier => {
+            const costDetail = supplierCosts[sku]?.[supplier];
+            if (!costDetail || costDetail.invoicePrice === 0) return null;
+            const adjustedCost = costDetail.invoicePrice - costDetail.scrapLoading;
+            return (
+              <li key={supplier} className="flex justify-between">
+                <span className="text-gray-300">{supplier}:</span>
+                {getProfitability(sellPrice, adjustedCost)}
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-white">Pricing Matrix</h1>
+        <p className="text-gray-400">This is the central control panel. Adjust GP% per SKU to see live updates everywhere.</p>
+      </div>
+      <Card padding="none">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-700">
+            <thead className="bg-gray-900/50">
+              <tr>
+                <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6">SKU / Brand</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">Avg Cost</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">G-Tier GP%</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">B-Tier GP%</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">S-Tier GP%</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">G-Tier Price</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">B-Tier Price</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">S-Tier Price</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">A-Tier Price</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-700 bg-gray-800">
+              {Object.keys(pricesExVat).map((skuStr) => {
+                 const sku = skuStr as SKU;
+                 const avgCost = (supplierCosts[sku].Exide.invoicePrice + supplierCosts[sku].Willard.invoicePrice) / 2;
+                const tierPrices = pricesExVat[sku];
+                const gps = desiredGPs[sku] || { gTierGP: 20, bTierGP: 30, sTierGP: 40 };
+
+                // FIX: This check prevents crashing if an SKU has no price data.
+                if (!tierPrices) {
+                    return null;
+                }
+
+                return (
+                  <>
+                    <tr key={sku} className="bg-gray-800 hover:bg-gray-700/50">
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-bold text-white sm:pl-6">{sku} (Anchor)</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">{formatCurrency(avgCost)}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm"><input type="number" defaultValue={gps.gTierGP} onBlur={(e) => handleGpChange(sku, 'gTierGP', e.target.value)} className="w-20 rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"/></td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm"><input type="number" defaultValue={gps.bTierGP} onBlur={(e) => handleGpChange(sku, 'bTierGP', e.target.value)} className="w-20 rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"/></td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm"><input type="number" defaultValue={gps.sTierGP} onBlur={(e) => handleGpChange(sku, 'sTierGP', e.target.value)} className="w-20 rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"/></td>
+                      
+                      {/* FIX: Safely access potentially undefined tier data using optional chaining (?.) and provide a fallback value (?? null). */}
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300 font-medium">{formatCurrency(tierPrices.G?.['Exide'] ?? null)}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300 font-medium">{formatCurrency(tierPrices.B?.['Exide'] ?? null)}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300 font-medium">{formatCurrency(tierPrices.S?.['Exide'] ?? null)}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300 font-medium">{formatCurrency(tierPrices.A?.['Exide'] ?? null)}</td>
+                    </tr>
+                    {houseBrands.map(brand => (
+                      <tr key={`${sku}-${brand}`} className="bg-gray-800/50 hover:bg-gray-700/40">
+                        <td className="py-2 pl-8 pr-3 text-sm text-gray-300 sm:pl-10">{brand}</td>
+                        <td colSpan={4} className="px-3 py-2 text-sm text-gray-400">
+                           {/* FIX: Safely access sellPrice and provide a fallback of 0. */}
+                          <ProfitabilityAnalysis sku={sku} sellPrice={tierPrices.S?.[brand] ?? 0} />
+                        </td>
+                         {/* FIX: Safely access potentially undefined tier data. */}
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-400">{formatCurrency(tierPrices.G?.[brand] ?? null)}</td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-400">{formatCurrency(tierPrices.B?.[brand] ?? null)}</td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-400">{formatCurrency(tierPrices.S?.[brand] ?? null)}</td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-400">{formatCurrency(tierPrices.A?.[brand] ?? null)}</td>
+                      </tr>
+                    ))}
+                  </>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\(dashboard)\pricelists\page.tsx
+================================================================================
+'use client';
+
+import { useCalculatedPrices, usePricingStore } from '@/store/pricingStore';
+import PriceControls from '@/components/dashboard/PriceControls';
+import PricingTable from '@/components/dashboard/PricingTable';
+import { SELLING_BRANDS } from '@/data/initialData';
+import Button from '@/components/ui/Button';
+import { Download, FileText } from 'lucide-react';
+import { useState } from 'react';
+import PrintablePriceList from '@/components/dashboard/PrintablePriceList';
+
+export default function PriceListPage() {
+  const calculatedData = useCalculatedPrices();
+  const { activeTier, branch } = usePricingStore();
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportCsv = async () => {
+    setIsExporting(true);
+    try {
+      const response = await fetch('/api/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          priceData: calculatedData,
+          activeTier: activeTier,
+          sellingBrands: SELLING_BRANDS,
+          branchName: branch
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Export failed: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = response.headers.get('Content-Disposition')?.split('filename=')[1].replace(/"/g, '') || 'pricelist.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error(error);
+      alert('There was an error exporting the CSV file.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportPdf = () => {
+    window.print();
+  };
+
+  return (
+    <>
+      {/* The main UI is now wrapped in a .no-print container */}
+      <div className="space-y-8 no-print">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white">Customer Price Lists</h1>
+            <p className="text-gray-400">Live price calculations based on your settings.</p>
+          </div>
+          <div className="flex gap-4">
+            <Button onClick={handleExportPdf} variant="secondary">
+              <FileText className="h-4 w-4 mr-2" />
+              Export PDF
+            </Button>
+            <Button onClick={handleExportCsv} variant="secondary" disabled={isExporting}>
+              <Download className="h-4 w-4 mr-2" />
+              {isExporting ? 'Exporting...' : `Export ${activeTier}-Tier CSV`}
+            </Button>
+          </div>
+        </div>
+
+        <PriceControls />
+
+        <PricingTable priceData={calculatedData} sellingBrands={SELLING_BRANDS} />
+      </div>
+
+      {/* This component is now outside the .no-print div. 
+          The CSS will hide it on screen and show it for printing. */}
+      <PrintablePriceList 
+          priceData={calculatedData} 
+          sellingBrands={SELLING_BRANDS}
+          activeTier={activeTier}
+          branch={branch}
+      />
+    </>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\(dashboard)\reports\page.tsx
+================================================================================
+'use client';
+
+import { useMemo, useState } from 'react';
+import { usePricingStore } from '@/store/pricingStore';
+import { calculateAllPrices } from '@/lib/calculations';
+import BrandReport from '@/components/dashboard/BrandReport';
+import { SKU, Brand, PriceTier } from '@/lib/types';
+import { SELLING_BRANDS } from '@/data/initialData';
+import Button from '@/components/ui/Button';
+import { Printer } from 'lucide-react';
+
+interface ReportRow {
+  size: SKU;
+  cost: number;
+  vdbPriceIncVat: number;
+  albPriceIncVat: number;
+  difference: number;
+  vdbGp: number;
+  albGp: number;
+  gpDiff: number;
+}
+
+export default function ReportsPage() {
+  const [selectedBrand, setSelectedBrand] = useState<Brand>('Willard');
+
+  const useBrandReportData = () => {
+    const { supplierCosts, desiredGPs } = usePricingStore();
+
+    return useMemo(() => {
+      const albertonPricesExVat = calculateAllPrices(supplierCosts, 'Alberton', desiredGPs, 'NearestR50', false);
+      const vanderbijlparkPricesExVat = calculateAllPrices(supplierCosts, 'Vanderbijlpark', desiredGPs, 'NearestR50', false);
+
+      const reportData: Record<PriceTier, ReportRow[]> = { G: [], B: [], S: [], A: [] };
+
+      for (const sku in supplierCosts) {
+        const skuTyped = sku as SKU;
+        const costs = supplierCosts[skuTyped];
+        
+        const brandCostDetail = costs[selectedBrand] || costs['Rezist'];
+        const brandCost = brandCostDetail.invoicePrice - brandCostDetail.scrapLoading;
+        
+        if (!costs.Exide?.invoicePrice || !costs.Willard?.invoicePrice) continue;
+
+        (['G', 'B', 'S', 'A'] as PriceTier[]).forEach(tier => {
+          const albPriceExVat = albertonPricesExVat[skuTyped]?.[tier]?.[selectedBrand];
+          const vdbPriceExVat = vanderbijlparkPricesExVat[skuTyped]?.[tier]?.[selectedBrand];
+          
+          if (albPriceExVat === null || vdbPriceExVat === null || typeof albPriceExVat === 'undefined' || typeof vdbPriceExVat === 'undefined') return;
+
+          const albProfit = albPriceExVat - brandCost;
+          const vdbProfit = vdbPriceExVat - brandCost;
+
+          const albGp = albPriceExVat > 0 ? (albProfit / albPriceExVat) * 100 : 0;
+          const vdbGp = vdbPriceExVat > 0 ? (vdbProfit / vdbPriceExVat) * 100 : 0;
+          
+          reportData[tier].push({
+            size: skuTyped,
+            cost: brandCost,
+            vdbPriceIncVat: vdbPriceExVat * 1.15,
+            albPriceIncVat: albPriceExVat * 1.15,
+            difference: (albPriceExVat * 1.15) - (vdbPriceExVat * 1.15),
+            vdbGp,
+            albGp,
+            gpDiff: albGp - vdbGp,
+          });
+        });
+      }
+      return reportData;
+    }, [supplierCosts, desiredGPs, selectedBrand]);
+  };
+
+  const reportData = useBrandReportData();
+
+  return (
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 no-print">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Brand Price Reports</h1>
+          <p className="text-gray-400">Generate a complete, printable price list for a specific brand.</p>
+        </div>
+        <div className="flex items-center gap-4">
+            <select
+              id="brand-selector"
+              value={selectedBrand}
+              onChange={(e) => setSelectedBrand(e.target.value as Brand)}
+              className="rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2"
+            >
+              {SELLING_BRANDS.map(brand => <option key={brand} value={brand}>{brand}</option>)}
+            </select>
+            <Button onClick={() => window.print()} variant="primary">
+                <Printer className="h-4 w-4 mr-2" />
+                Print Report
+            </Button>
+        </div>
+      </div>
+      <div className="print-section">
+        <BrandReport data={reportData} brandName={selectedBrand} />
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\(dashboard)\settings\page.tsx
+================================================================================
+'use client';
+
+import { useRef } from 'react';
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import { User, Bell, Palette, Upload, Download } from 'lucide-react';
+import { usePricingStore } from '@/store/pricingStore';
+import { ExportData } from '@/lib/types';
+
+export default function SettingsPage() {
+  // Get the current state and the import action from the store
+  const { suppliers, supplierCosts, desiredGPs, importData } = usePricingStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleExport = () => {
+    // Bundle all the critical data into one object
+    const dataToExport: ExportData = {
+      suppliers,
+      supplierCosts,
+      desiredGPs,
+    };
+
+    const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
+      JSON.stringify(dataToExport, null, 2)
+    )}`;
+    
+    const link = document.createElement("a");
+    link.href = jsonString;
+    const date = new Date().toISOString().split('T')[0];
+    link.download = `gbsa_pricing_data_backup_${date}.json`;
+
+    link.click();
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string;
+        const data = JSON.parse(text) as ExportData;
+
+        // Basic validation to ensure the file is correct
+        if (data.suppliers && data.supplierCosts && data.desiredGPs) {
+          importData(data);
+          alert('Data imported successfully!');
+        } else {
+          alert('Invalid data file format.');
+        }
+      } catch (error) {
+        console.error("Failed to parse JSON file", error);
+        alert("Failed to read or parse the file. Please ensure it's a valid JSON backup file.");
+      }
+    };
+    reader.readAsText(file);
+    // Reset input value to allow re-uploading the same file
+    if(event.target) event.target.value = '';
+  };
+
+
+  return (
+    <div className="space-y-8">
+       <div>
+        <h1 className="text-3xl font-bold text-white">Settings</h1>
+        <p className="text-gray-400">Manage your application and account preferences.</p>
+      </div>
+
+      <div className="max-w-4xl space-y-8">
+        
+        {/* NEW Data Management Card */}
+        <Card>
+          <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+            Data Management
+          </h2>
+          <p className="text-sm text-gray-400 mb-4">
+            Save all your costs and GP% settings to a file on your computer. You can import this file later to restore your data.
+          </p>
+          <div className="flex gap-4">
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".json" />
+            <Button onClick={handleImportClick} variant="secondary">
+              <Upload className="h-4 w-4 mr-2" />
+              Import Data
+            </Button>
+            <Button onClick={handleExport} variant="primary">
+              <Download className="h-4 w-4 mr-2" />
+              Export All Data
+            </Button>
+          </div>
+        </Card>
+        
+        <Card>
+          <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+            <User className="mr-3 text-gray-400" /> User Profile
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-gray-500">Name</label>
+              <p className="text-lg text-white">Frank Smit (Boss)</p>
+            </div>
+             <div>
+              <label className="text-sm font-medium text-gray-500">Email</label>
+              <p className="text-lg text-white">frank.smit@gbsa.com</p>
+            </div>
+            <Button variant="outline" size="sm" disabled>Edit Profile</Button>
+           </div>
+        </Card>
+
+        <Card>
+          <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+            <Bell className="mr-3 text-gray-400" /> Notifications
+          </h2>
+           <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-gray-200">Email Notifications</p>
+                <p className="text-sm text-gray-400">Receive an email for important alerts.</p>
+              </div>
+               <p className="text-sm text-gray-500 italic">Coming soon</p>
+            </div>
+        </Card>
+        
+        <Card>
+          <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+            <Palette className="mr-3 text-gray-400" /> Appearance
+          </h2>
+          <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-gray-200">Theme</p>
+                <p className="text-sm text-gray-400">Current theme is Dark Mode.</p>
+              </div>
+               <p className="text-sm text-gray-500 italic">Coming soon</p>
+            </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\app\api\export\route.ts
+================================================================================
+import { NextRequest, NextResponse } from 'next/server';
+import { Brand, PriceTier, SKU } from '@/lib/types';
+
+// This is an API Route Handler. It runs on the server, not in the browser.
+export async function POST(req: NextRequest) {
+  try {
+    // 1. Read the data sent from the frontend
+    const body = await req.json();
+    const { priceData, activeTier, sellingBrands, branchName } = body as {
+      priceData: Record<SKU, Record<PriceTier, Record<string, number>>>;
+      activeTier: PriceTier;
+      sellingBrands: Brand[];
+      branchName: string;
+    };
+
+    if (!priceData || !activeTier || !sellingBrands) {
+      return new NextResponse('Missing required data for export', { status: 400 });
+    }
+
+    // 2. Build the CSV content as a string
+    const header = ['SKU', ...sellingBrands].join(',');
+    const rows = Object.keys(priceData).map(sku => {
+      const tierData = priceData[sku][activeTier];
+      const priceCells = sellingBrands.map(brand => {
+        // Format to a plain number with 2 decimal places for the CSV
+        return tierData[brand]?.toFixed(2) || '0.00';
+      });
+      return [sku, ...priceCells].join(',');
+    });
+
+    const csvContent = [header, ...rows].join('\n');
+
+    // 3. Create a filename and send the file back to the browser
+    const fileName = `GBSA_PriceList_${branchName}_${activeTier}-Tier_${new Date().toISOString().slice(0, 10)}.csv`;
+
+    return new NextResponse(csvContent, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/csv',
+        'Content-Disposition': `attachment; filename="${fileName}"`,
+      },
+    });
+
+  } catch (error) {
+    console.error('CSV Export Error:', error);
+    return new NextResponse('Failed to generate CSV file.', { status: 500 });
+  }
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\components\dashboard\BrandReport.tsx
+================================================================================
+'use client';
+
+import { formatCurrency } from '@/lib/formatters';
+
+interface ReportData {
+  size: string;
+  cost: number;
+  vdbPriceIncVat: number;
+  albPriceIncVat: number;
+  difference: number;
+  vdbGp: number;
+  albGp: number;
+  gpDiff: number;
+}
+
+interface BrandReportProps {
+  brandName: string;
+  data: {
+    G: ReportData[];
+    B: ReportData[];
+    S: ReportData[];
+    A: ReportData[];
+  };
+}
+
+const ReportTable = ({ title, data }: { title: string; data: ReportData[] }) => (
+  <div className="mb-10 break-after-page">
+    <h2 className="text-xl font-bold print-text-color mb-3">{title}</h2>
+    <table className="min-w-full text-sm">
+      <thead className="text-left font-semibold text-gray-300 print-text-color print-header-bg">
+        <tr>
+          <th className="p-2 border border-gray-600">Size</th>
+          <th className="p-2 border border-gray-600">Cost (EX VAT)</th>
+          <th className="p-2 border border-gray-600">VDB Price (INC VAT)</th>
+          <th className="p-2 border border-gray-600">ALB Price (INC VAT)</th>
+          <th className="p-2 border border-gray-600">Difference (RAND)</th>
+          <th className="p-2 border border-gray-600">VDB GP %</th>
+          <th className="p-2 border border-gray-600">ALB GP %</th>
+          <th className="p-2 border border-gray-600">GP % Difference</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map(row => (
+          <tr key={row.size} className="border-b border-gray-700">
+            <td className="p-2 border-x border-gray-700 font-medium text-white print-text-color">{row.size}</td>
+            <td className="p-2 border-x border-gray-700 text-gray-300 print-text-color">{formatCurrency(row.cost)}</td>
+            <td className="p-2 border-x border-gray-700 text-gray-300 print-text-color">{formatCurrency(row.vdbPriceIncVat)}</td>
+            <td className="p-2 border-x border-gray-700 text-gray-300 print-text-color">{formatCurrency(row.albPriceIncVat)}</td>
+            <td className="p-2 border-x border-gray-700 text-gray-300 print-text-color">{formatCurrency(row.difference)}</td>
+            <td className="p-2 border-x border-gray-700 text-gray-300 print-text-color">{row.vdbGp.toFixed(2)}%</td>
+            <td className="p-2 border-x border-gray-700 text-gray-300 print-text-color">{row.albGp.toFixed(2)}%</td>
+            <td className="p-2 border-x border-gray-700 text-gray-300 print-text-color">{row.gpDiff.toFixed(2)}%</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+export default function BrandReport({ data, brandName }: BrandReportProps) {
+  const reportDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  return (
+    <div className="space-y-8 bg-gray-900 p-8 rounded-lg border border-gray-700 text-gray-300 print-container">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold uppercase text-white print-text-color">{brandName} PRICES</h1>
+        <p className="font-semibold print-text-color">{reportDate}</p>
+      </div>
+
+      <ReportTable title="G: DEALERS + BIG CUSTOMERS" data={data.G} />
+      <ReportTable title="B: SMALLER CUSTOMERS" data={data.B} />
+      <ReportTable title="S: COUNTER PRICES" data={data.S} />
+      <ReportTable title="A: ADVERTISING ONLINE" data={data.A} />
+    </div>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\components\dashboard\ComparisonTable.tsx
+================================================================================
+'use client';
+
+import Card from '@/components/ui/Card';
+import { formatCurrency } from '@/lib/formatters';
+import { SKU, Brand } from '@/lib/types';
+
+interface ComparisonData {
+  sku: SKU;
+  albertonPrice: number;
+  vanderbijlparkPrice: number;
+  albertonProfit: number;
+  vanderbijlparkProfit: number;
+  albertonGp: number;
+  vanderbijlparkGp: number;
+  priceDiff: number;
+  profitDiff: number;
+  gpDiff: number;
+}
+
+interface ComparisonTableProps {
+  data: ComparisonData[];
+  brands: Brand[];
+  selectedBrand: Brand;
+  onBrandChange: (brand: Brand) => void;
+}
+
+const ComparisonTable = ({ data, brands, selectedBrand, onBrandChange }: ComparisonTableProps) => {
+  const formatDiff = (value: number, isPercentage = false) => {
+    if (value === 0) return <span className="text-gray-400">{isPercentage ? '0.0%' : formatCurrency(0)}</span>;
+    const isNegative = value < 0;
+    const displayValue = isPercentage ? `${Math.abs(value).toFixed(1)}%` : formatCurrency(Math.abs(value));
+    return (
+      <span className={isNegative ? 'text-green-400' : 'text-red-400'}>
+        {isNegative ? '-' : '+'}
+        {displayValue}
+      </span>
+    );
+  };
+
+  return (
+    <Card padding="none">
+      <div className="p-4 border-b border-gray-700 flex items-center">
+        <label htmlFor="brand-selector" className="text-sm font-medium text-gray-300 mr-3">Compare Brand:</label>
+        <select
+          id="brand-selector"
+          value={selectedBrand}
+          onChange={(e) => onBrandChange(e.target.value as Brand)}
+          className="rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+        >
+          {brands.map(brand => <option key={brand} value={brand}>{brand}</option>)}
+        </select>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead className="bg-gray-900/50">
+            <tr>
+              <th scope="col" rowSpan={2} className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6 align-bottom">SKU</th>
+              <th scope="colgroup" colSpan={3} className="px-3 py-2 text-center text-sm font-semibold text-white border-x border-gray-700">Alberton</th>
+              <th scope="colgroup" colSpan={3} className="px-3 py-2 text-center text-sm font-semibold text-white border-l border-gray-700">Vanderbijlpark</th>
+              <th scope="colgroup" colSpan={3} className="px-3 py-2 text-center text-sm font-semibold text-white border-l border-gray-700 bg-gray-700/50">Difference</th>
+            </tr>
+            <tr>
+              <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-400 border-x border-gray-700">Price</th>
+              <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-400">Profit</th>
+              <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-400 border-r border-gray-700">GP%</th>
+              <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-400">Price</th>
+              <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-400">Profit</th>
+              <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-400 border-r border-gray-700">GP%</th>
+              <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-400 bg-gray-700/50">Price</th>
+              <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-400 bg-gray-700/50">Profit</th>
+              <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-400 bg-gray-700/50">GP%</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-700 bg-gray-800">
+            {data.map((row) => (
+              <tr key={row.sku} className="hover:bg-gray-700/50">
+                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-6">{row.sku}</td>
+                {/* Alberton Data */}
+                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300 border-l border-gray-700">{formatCurrency(row.albertonPrice)}</td>
+                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">{formatCurrency(row.albertonProfit)}</td>
+                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300 border-r border-gray-700">{row.albertonGp.toFixed(1)}%</td>
+                {/* Vanderbijlpark Data */}
+                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">{formatCurrency(row.vanderbijlparkPrice)}</td>
+                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">{formatCurrency(row.vanderbijlparkProfit)}</td>
+                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300 border-r border-gray-700">{row.vanderbijlparkGp.toFixed(1)}%</td>
+                {/* Difference Data */}
+                <td className="whitespace-nowrap px-3 py-4 text-sm font-semibold bg-gray-800">{formatDiff(row.priceDiff)}</td>
+                <td className="whitespace-nowrap px-3 py-4 text-sm font-semibold bg-gray-800">{formatDiff(row.profitDiff)}</td>
+                <td className="whitespace-nowrap px-3 py-4 text-sm font-semibold bg-gray-800">{formatDiff(row.gpDiff, true)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+};
+
+export default ComparisonTable;
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\components\dashboard\DashboardHeader.tsx
+================================================================================
+'use client';
+
+import { Bell, Menu } from 'lucide-react';
+import { useAuth } from '@/app/AuthContext';
+
+interface DashboardHeaderProps {
+  onMenuClick: () => void;
+}
+
+const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
+  const { user } = useAuth();
+  
+  return (
+    <header className="flex-shrink-0 bg-gray-900 border-b border-white/10">
+      <div className="flex items-center justify-between p-4 h-16">
+        <div className="flex items-center">
+          <button
+            onClick={onMenuClick}
+            className="md:hidden text-gray-400 hover:text-white mr-4"
+            aria-label="Open sidebar"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+          <p className="text-sm text-gray-400">Welcome, <span className="font-semibold text-white">{user?.name}</span></p>
+        </div>
+        
+        <div className="flex items-center space-x-4">
+          <Bell className="h-6 w-6 text-gray-400 cursor-pointer hover:text-white" />
+          <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center text-sm font-bold text-gray-300 ring-2 ring-gray-600">
+            {user?.name.charAt(0)}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default DashboardHeader;
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\components\dashboard\GpAnalysisTable.tsx
+================================================================================
+'use client';
+
+import { useState, useMemo } from 'react';
+import { usePricingStore } from '@/store/pricingStore';
+import { SKU } from '@/lib/types';
+import Card from '@/components/ui/Card';
+import { formatCurrency } from '@/lib/formatters';
+
+const VAT_RATE = 1.15;
+
+export default function GpAnalysisTable() {
+  const { supplierCosts } = usePricingStore();
+  
+  const [manualPrices, setManualPrices] = useState<Record<SKU, number | ''>>({});
+  const [inputsIncludeVat, setInputsIncludeVat] = useState(true);
+
+  const skus = Object.keys(supplierCosts);
+
+  const handlePriceChange = (sku: SKU, value: string) => {
+    const newPrice = value === '' ? '' : parseFloat(value);
+    setManualPrices(prev => ({ ...prev, [sku]: newPrice }));
+  };
+
+  const analysisData = useMemo(() => {
+    return skus.map(sku => {
+      const costs = supplierCosts[sku];
+      // Ensure costs for anchor brands exist before calculating average
+      const avgCost = (costs?.Exide?.invoicePrice || 0) + (costs?.Willard?.invoicePrice || 0) / 2;
+      const sellingPrice = manualPrices[sku];
+
+      if (sellingPrice === '' || sellingPrice === null || sellingPrice === undefined || avgCost === 0) {
+        return { sku, avgCost, profit: null, gp: null };
+      }
+
+      const sellingPriceExVat = inputsIncludeVat ? sellingPrice / VAT_RATE : sellingPrice;
+      const profit = sellingPriceExVat - avgCost;
+      const gp = sellingPriceExVat > 0 ? (profit / sellingPriceExVat) * 100 : 0;
+
+      return { sku, avgCost, profit, gp };
+    });
+  }, [skus, supplierCosts, manualPrices, inputsIncludeVat]);
+
+  const getGpColor = (gp: number | null) => {
+    if (gp === null) return 'text-gray-400';
+    if (gp < 15) return 'text-red-400';
+    if (gp < 30) return 'text-yellow-400';
+    return 'text-green-400';
+  };
+
+  return (
+    <Card padding="none">
+      <div className="p-4 border-b border-gray-700 flex justify-end">
+        <label htmlFor="vat-toggle" className="flex items-center cursor-pointer">
+            <div className="relative">
+              <input type="checkbox" id="vat-toggle" className="sr-only peer" checked={inputsIncludeVat} onChange={(e) => setInputsIncludeVat(e.target.checked)} />
+              <div className="block bg-gray-600 w-14 h-8 rounded-full peer-checked:bg-red-600 transition"></div>
+              <div className="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform peer-checked:translate-x-6"></div>
+            </div>
+            <div className="ml-3 text-gray-300 font-medium text-sm">Input Prices Include VAT</div>
+          </label>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-700">
+          <thead className="bg-gray-900/50">
+            <tr>
+              <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6">SKU</th>
+              <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">Avg Cost</th>
+              <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">Your Selling Price</th>
+              <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">Profit (Rand)</th>
+              <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">GP %</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-700 bg-gray-800">
+            {analysisData.map(({ sku, avgCost, profit, gp }) => (
+              <tr key={sku} className="hover:bg-gray-700/50">
+                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-6">{sku}</td>
+                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-400">{formatCurrency(avgCost)}</td>
+                <td className="whitespace-nowrap px-3 py-4">
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <span className="text-gray-400 sm:text-sm">R</span>
+                    </div>
+                    <input
+                      type="number"
+                      value={manualPrices[sku] || ''}
+                      onChange={(e) => handlePriceChange(sku, e.target.value)}
+                      className="w-32 rounded-md border-gray-600 bg-gray-700 text-white pl-7 pr-2 py-2 focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </td>
+                <td className="whitespace-nowrap px-3 py-4 text-sm font-semibold text-gray-300">
+                  {profit !== null ? formatCurrency(profit) : '---'}
+                </td>
+                <td className={`whitespace-nowrap px-3 py-4 text-sm font-bold ${getGpColor(gp)}`}>
+                  {gp !== null ? `${gp.toFixed(1)}%` : '---'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\components\dashboard\PriceControls.tsx
+================================================================================
+'use client';
+
+import { usePricingStore } from '@/store/pricingStore';
+import { Branch, Rounding, PriceTier } from '@/lib/types';
+import Card from '@/components/ui/Card';
+
+export default function PriceControls() {
+  const {
+    branch, setBranch,
+    rounding, setRounding,
+    includeVAT, setIncludeVAT,
+    activeTier, setActiveTier
+  } = usePricingStore();
+
+  const selectClasses = "w-full pl-3 pr-10 py-2 text-base border-gray-600 bg-gray-700 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 sm:text-sm";
+
+  return (
+    <Card padding="md">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+        <div>
+          <label htmlFor="tier-select" className="block text-sm font-medium text-gray-300 mb-1">Price Tier</label>
+          <select id="tier-select" value={activeTier} onChange={(e) => setActiveTier(e.target.value as PriceTier)} className={selectClasses}>
+            <option value="S">S - Counter</option>
+            <option value="A">A - Advertising</option>
+            <option value="B">B - Good Customer</option>
+            <option value="G">G - Large Customer</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="branch-select" className="block text-sm font-medium text-gray-300 mb-1">Branch</label>
+          <select id="branch-select" value={branch} onChange={(e) => setBranch(e.target.value as Branch)} className={selectClasses}>
+            <option>Alberton</option>
+            <option>Vanderbijlpark</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="rounding-select" className="block text-sm font-medium text-gray-300 mb-1">Rounding</label>
+          <select id="rounding-select" value={rounding} onChange={(e) => setRounding(e.target.value as Rounding)} className={selectClasses}>
+            <option value="NearestR50">Nearest R50</option>
+            <option value="None">None</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="vat-toggle" className="flex items-center cursor-pointer">
+            <div className="relative">
+              <input type="checkbox" id="vat-toggle" className="sr-only peer" checked={includeVAT} onChange={(e) => setIncludeVAT(e.target.checked)} />
+              <div className="block bg-gray-600 w-14 h-8 rounded-full peer-checked:bg-red-600 transition"></div>
+              <div className="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform peer-checked:translate-x-6"></div>
+            </div>
+            <div className="ml-3 text-gray-300 font-medium text-sm">Include VAT</div>
+          </label>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\components\dashboard\PricingMatrix.tsx
+================================================================================
+'use client';
+
+import { usePricingStore } from '@/store/pricingStore';
+import { calculateAllPrices } from '@/lib/calculations';
+import { SKU, Brand, Supplier } from '@/lib/types';
+import Card from '@/components/ui/Card';
+import { formatCurrency } from '@/lib/formatters';
+import { Info } from 'lucide-react';
+
+const houseBrands: Brand[] = ['Global', 'Novax 18', 'Novax Premium'];
+const localSuppliers: Supplier[] = ['Rezist', 'Enertec', 'Electro City'];
+
+export default function PricingMatrix() {
+  const { supplierCosts, desiredGPs, updateDesiredGP } = usePricingStore();
+  const pricesExVat = calculateAllPrices(supplierCosts, 'Alberton', desiredGPs, 'NearestR50', false);
+
+  const handleGpChange = (sku: SKU, tier: 'gTierGP' | 'bTierGP' | 'sTierGP', value: string) => {
+    const newGp = parseFloat(value);
+    const currentGps = desiredGPs[sku] || { gTierGP: 20, bTierGP: 30, sTierGP: 40 };
+    if (!isNaN(newGp) && newGp >= 0 && newGp < 100) {
+      const updatedGps = { ...currentGps, [tier]: newGp };
+      updateDesiredGP(sku, updatedGps.gTierGP, updatedGps.bTierGP, updatedGps.sTierGP);
+    }
+  };
+
+  const getProfitability = (sellPrice: number, cost: number) => {
+    if(cost <= 0) return <span className="text-gray-500">No Cost</span>;
+    const profit = sellPrice - cost;
+    const gp = sellPrice > 0 ? (profit / sellPrice) * 100 : 0;
+    const color = gp < 15 ? 'text-red-400' : gp < 30 ? 'text-yellow-400' : 'text-green-400';
+    return <span className={color}>{gp.toFixed(1)}%</span>;
+  };
+
+  const ProfitabilityAnalysis = ({ sku, sellPrice }: { sku: SKU, sellPrice: number}) => (
+    <div className="relative group flex items-center gap-2">
+      <span className="italic">Profitability Analysis</span>
+      <Info className="h-4 w-4 text-gray-500 cursor-pointer" />
+      <div className="absolute z-10 bottom-full mb-2 w-64 bg-gray-900 border border-gray-600 rounded-lg shadow-lg p-3 text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+        <h4 className="font-bold text-white mb-2">Adjusted Cost GP% (S-Tier)</h4>
+        <p className="text-gray-400 mb-2">GP% if sourcing a house brand from local suppliers using their cost minus scrap value.</p>
+        <ul className="space-y-1">
+          {localSuppliers.map(supplier => {
+            const costDetail = supplierCosts[sku]?.[supplier];
+            if (!costDetail || costDetail.invoicePrice === 0) return null;
+            const adjustedCost = costDetail.invoicePrice - costDetail.scrapLoading;
+            return (
+              <li key={supplier} className="flex justify-between">
+                <span className="text-gray-300">{supplier}:</span>
+                {getProfitability(sellPrice, adjustedCost)}
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-white">Pricing Matrix</h1>
+        <p className="text-gray-400">This is the central control panel. Adjust GP% per SKU to see live updates everywhere.</p>
+      </div>
+      <Card padding="none">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-700">
+            <thead className="bg-gray-900/50">
+              <tr>
+                <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6">SKU / Brand</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">Avg Cost</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">G-Tier GP%</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">B-Tier GP%</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">S-Tier GP%</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">G-Tier Price</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">B-Tier Price</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">S-Tier Price</th>
+                <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">A-Tier Price</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-700 bg-gray-800">
+              {Object.keys(pricesExVat).map((sku) => {
+                const skuTyped = sku as SKU;
+                const avgCost = (supplierCosts[skuTyped].Exide.invoicePrice + supplierCosts[skuTyped].Willard.invoicePrice) / 2;
+                const tierPrices = pricesExVat[skuTyped];
+                const gps = desiredGPs[skuTyped] || { gTierGP: 20, bTierGP: 30, sTierGP: 40 };
+
+                // This check prevents crashing if an SKU has no price data
+                if (!tierPrices) return null;
+
+                return (
+                  <>
+                    <tr key={skuTyped} className="bg-gray-800 hover:bg-gray-700/50">
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-bold text-white sm:pl-6">{skuTyped} (Anchor)</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">{formatCurrency(avgCost)}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm"><input type="number" defaultValue={gps.gTierGP} onBlur={(e) => handleGpChange(skuTyped, 'gTierGP', e.target.value)} className="w-20 rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"/></td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm"><input type="number" defaultValue={gps.bTierGP} onBlur={(e) => handleGpChange(skuTyped, 'bTierGP', e.target.value)} className="w-20 rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"/></td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm"><input type="number" defaultValue={gps.sTierGP} onBlur={(e) => handleGpChange(skuTyped, 'sTierGP', e.target.value)} className="w-20 rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"/></td>
+                      
+                      {/* Safely access potentially undefined tier data */}
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300 font-medium">{formatCurrency(tierPrices.G?.['Exide'] ?? null)}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300 font-medium">{formatCurrency(tierPrices.B?.['Exide'] ?? null)}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300 font-medium">{formatCurrency(tierPrices.S?.['Exide'] ?? null)}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300 font-medium">{formatCurrency(tierPrices.A?.['Exide'] ?? null)}</td>
+                    </tr>
+                    {houseBrands.map(brand => (
+                      <tr key={`${skuTyped}-${brand}`} className="bg-gray-800/50 hover:bg-gray-700/40">
+                        <td className="py-2 pl-8 pr-3 text-sm text-gray-300 sm:pl-10">{brand}</td>
+                        <td colSpan={4} className="px-3 py-2 text-sm text-gray-400">
+                          <ProfitabilityAnalysis sku={skuTyped} sellPrice={tierPrices.S?.[brand] ?? 0} />
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-400">{formatCurrency(tierPrices.G?.[brand] ?? null)}</td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-400">{formatCurrency(tierPrices.B?.[brand] ?? null)}</td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-400">{formatCurrency(tierPrices.S?.[brand] ?? null)}</td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-400">{formatCurrency(tierPrices.A?.[brand] ?? null)}</td>
+                      </tr>
+                    ))}
+                  </>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\components\dashboard\PricingTable.tsx
+================================================================================
+'use client';
+
+import { useState, useEffect } from 'react';
+import { usePricingStore } from '@/store/pricingStore';
+// FIX: Removed unused 'PriceTier' import
+import { SKU, Brand, CalculatedPrices } from '@/lib/types';
+import Card from '@/components/ui/Card';
+
+const formatCurrency = (value: number | null) => {
+  if (isNaN(value as number) || value === null) return 'N/A';
+  return value.toLocaleString('en-ZA', { style: 'currency', currency: 'ZAR' });
+};
+
+interface PricingTableProps {
+  priceData: CalculatedPrices;
+  sellingBrands: Brand[];
+}
+
+export default function PricingTable({ priceData, sellingBrands }: PricingTableProps) {
+  const { activeTier } = usePricingStore();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!priceData || !isClient) {
+    return (
+      <Card padding="none">
+        <div className="overflow-x-auto p-10 text-center text-gray-500">Loading prices...</div>
+      </Card>
+    );
+  }
+
+  const skus = Object.keys(priceData) as SKU[];
+
+  return (
+    <Card padding="none">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-700">
+          <thead className="bg-gray-900/50">
+            <tr>
+              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6">SKU</th>
+              {sellingBrands.map((brand) => (
+                <th key={brand} scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white">{brand}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-700 bg-gray-800">
+            {skus.map((sku) => (
+              <tr key={sku} className="hover:bg-gray-700/50">
+                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-6">{sku}</td>
+                {sellingBrands.map((brand) => (
+                  <td key={`${sku}-${brand}`} className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
+                    {formatCurrency(priceData[sku]?.[activeTier]?.[brand] ?? null)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\components\dashboard\PrintablePriceList.tsx
+================================================================================
+'use client';
+
+import { formatCurrency } from '@/lib/formatters';
+import { Branch, PriceTier, CalculatedPrices, Brand, SKU } from '@/lib/types';
+
+// Color Palette
+const colors = {
+  navy: '#001F3F',
+  yellow: '#FFD700',
+  charcoal: '#36454F',
+  lightGrey: '#F9FAFB',
+  white: '#FFFFFF',
+};
+
+// A modern, highly-readable font stack
+const professionalFont = 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+
+// Official addresses are now included
+const branchDetails = {
+  'Alberton': {
+    phone: '011 869 2427',
+    whatsapp: '079 320 3014',
+    address: '6 Voortrekker Street, New Redruth, Alberton 1449'
+  },
+  'Vanderbijlpark': {
+    phone: '016 023 0161',
+    whatsapp: '071 139 4043',
+    address: 'Shop 3, Ganda Ganda City, Cnr Golden Highway & Rautenbach Rd, Vanderbijlpark, 1900'
+  }
+};
+
+interface PrintablePriceListProps {
+  priceData: CalculatedPrices;
+  sellingBrands: Brand[];
+  activeTier: PriceTier;
+  branch: Branch;
+}
+
+export default function PrintablePriceList({ priceData, sellingBrands, activeTier, branch }: PrintablePriceListProps) {
+  const reportDate = new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  const details = branchDetails[branch];
+  
+  const leadAcidSkus = [
+    '610', '611', '612', '615', '616', '619', '621', '622', '628', '630', '631', '634', '636', 
+    '636CS / HT', '638', '639', '640 / 643', '646', '651', '652', '652PS 75Ah', '657', '659', 
+    '650', '658', '668', '669', '674', '682', '683', '689', '690', '692', '695', '696', 
+    'SMF100 / 674TP', 'SMF101 / 674SP'
+  ];
+  // --- UPDATED: '105AGM' has been moved to this category ---
+  const agmSkus = ['612AGM', '646AGM', '652AGM', '668AGM', '658AGM', '105AGM'];
+  // --- UPDATED: '105AGM' has been removed from this category ---
+  const leisureSkus = ['RR0', 'RR1'];
+
+  const tierFullName = {
+    'S': 'S-Tier: Counter Prices', 'A': 'A-Tier: Advertising Online',
+    'B': 'B-Tier: Smaller Customers', 'G': 'G-Tier: Dealers & Big Customers'
+  }[activeTier];
+
+  const TableSection = ({ title, skus, avoidBreak = false }: { title: string, skus: SKU[], avoidBreak?: boolean }) => {
+    const sectionStyle: React.CSSProperties = { 
+      marginBottom: '20px',
+    };
+    if (avoidBreak) {
+      sectionStyle.breakInside = 'avoid';
+    }
+
+    return (
+      <div style={sectionStyle}>
+        <h3 style={{
+          fontSize: '14pt', fontWeight: 'bold', color: colors.navy,
+          borderBottom: `2px solid ${colors.yellow}`, paddingBottom: '8px', marginBottom: '12px',
+          fontFamily: professionalFont
+        }}>{title}</h3>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={{ padding: '10px', textAlign: 'left', fontSize: '9pt', color: colors.charcoal, textTransform: 'uppercase', fontFamily: professionalFont }}>SKU / Size</th>
+              {sellingBrands.map(brand => (
+                <th key={brand} style={{ 
+                  padding: '10px', 
+                  textAlign: 'left', 
+                  fontSize: '9pt', 
+                  color: colors.charcoal, 
+                  textTransform: 'uppercase', 
+                  fontFamily: professionalFont 
+                }}>{brand}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {skus.map((sku, index) => (
+              priceData[sku] && (
+                <tr key={sku} style={{ backgroundColor: index % 2 === 0 ? colors.white : colors.lightGrey, borderBottom: `1px solid #E5E7EB` }}>
+                  <td style={{ padding: '12px 10px', fontWeight: 'bold', color: colors.navy }}>
+                    {sku}
+                  </td>
+                  {sellingBrands.map(brand => (
+                    <td key={`${sku}-${brand}`} style={{ 
+                      padding: '12px 10px', 
+                      textAlign: 'left', 
+                      fontFamily: professionalFont, 
+                      fontSize: '12pt',
+                      color: colors.charcoal
+                    }}>
+                      {formatCurrency(priceData[sku]?.[activeTier]?.[brand] ?? null)}
+                    </td>
+                  ))}
+                </tr>
+              )
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  return (
+    <div className="print-section">
+      <div style={{ 
+        backgroundColor: colors.white, fontFamily: professionalFont, color: colors.charcoal,
+        width: '210mm', minHeight: '297mm', margin: '0 auto',
+      }}>
+        <div style={{ padding: '10mm' }}>
+          <header style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+            borderBottom: `3px solid ${colors.navy}`, paddingBottom: '16px', marginBottom: '20px'
+          }}>
+            <div>
+              <h1 style={{ fontSize: '28pt', fontWeight: 'bold', color: colors.navy, margin: 0, lineHeight: 1 }}>Global Batteries</h1>
+              <p style={{ margin: '4px 0 0', letterSpacing: '0.5px', color: colors.charcoal }}>Your Trusted Battery Specialists</p>
+            </div>
+            <div style={{ textAlign: 'right', fontSize: '10pt', color: colors.charcoal }}>
+              <p style={{ margin: 0 }}>{details.address}</p>
+              <p style={{ margin: '4px 0 0' }}><b>Call:</b> {details.phone}</p>
+              <p style={{ margin: '4px 0 0' }}><b>WhatsApp:</b> {details.whatsapp}</p>
+            </div>
+          </header>
+
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <h2 style={{ fontSize: '18pt', fontWeight: 'bold', color: colors.navy, margin: 0 }}>{tierFullName}</h2>
+            <p style={{ margin: '4px 0 0', color: colors.charcoal }}>Price List Valid For: {reportDate}</p>
+          </div>
+          
+          <main>
+            <TableSection title="Lead Acid Batteries" skus={leadAcidSkus} />
+            <TableSection title="AGM (Stop/Start) Batteries" skus={agmSkus} avoidBreak={true} />
+            <TableSection title="Leisure & Marine Batteries" skus={leisureSkus} avoidBreak={true} />
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\components\dashboard\Sidebar.tsx
+================================================================================
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { BarChart2, GitCompareArrows, Wrench, Settings, LogOut, BatteryCharging, X, Table, Calculator, FileText } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/app/AuthContext';
+import { UserRole } from '@/lib/types';
+
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
+  const pathname = usePathname();
+  const { user } = useAuth();
+
+  const navItems = [
+    { name: 'Price Lists', href: '/pricelists', icon: BarChart2, roles: ['Boss', 'Manager'] },
+    { name: 'Pricing Matrix', href: '/matrix', icon: Table, roles: ['Boss', 'Manager'] },
+    { name: 'GP Analysis', href: '/analysis', icon: Calculator, roles: ['Boss', 'Manager'] },
+    { name: 'Comparison', href: '/comparison', icon: GitCompareArrows, roles: ['Boss', 'Manager'] },
+    { name: 'Reports', href: '/reports', icon: FileText, roles: ['Boss', 'Manager'] }, // <-- NEW PAGE
+    { name: 'Supplier Costs', href: '/costs', icon: Wrench, roles: ['Boss', 'Manager'] },
+    { name: 'Settings', href: '/settings', icon: Settings, roles: ['Boss'] },
+  ];
+
+  const filteredNavItems = navItems.filter(item => user?.role && (item.roles as UserRole[]).includes(user.role));
+
+  const SidebarContent = () => (
+    <div className="w-64 bg-gray-900 text-gray-300 flex flex-col h-full border-r border-white/10 no-print">
+      <div className="h-16 flex items-center justify-between px-4 border-b border-white/10">
+        <Link href="/pricelists" className="flex items-center gap-2 transition-opacity hover:opacity-80">
+            <BatteryCharging className="h-7 w-7 text-red-500" />
+            <span className="text-lg font-bold text-white">GBSAPricing</span>
+        </Link>
+        <button onClick={onClose} className="md:hidden text-gray-400 hover:text-white" aria-label="Close sidebar">
+            <X className="h-6 w-6" />
+        </button>
+      </div>
+      <nav className="flex-grow px-4 py-6">
+        <ul>
+          {filteredNavItems.map(item => (
+            <li key={item.name}>
+              <Link
+                href={item.href}
+                onClick={onClose}
+                className={`flex items-center px-4 py-3 my-1 rounded-md transition-colors text-sm ${
+                  pathname.startsWith(item.href)
+                    ? 'bg-red-600 text-white'
+                    : 'hover:bg-gray-800 hover:text-white'
+                }`}
+              >
+                <item.icon className="h-5 w-5 mr-3" />
+                <span className="font-medium">{item.name}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <div className="p-4 border-t border-white/10">
+        <button
+            className="flex w-full items-center px-4 py-3 my-1 rounded-md text-gray-400 hover:bg-red-900/50 hover:text-red-300 transition-colors"
+        >
+            <LogOut className="h-5 w-5 mr-3" />
+            <span className="font-medium text-sm">Logout</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      <div className="hidden md:flex md:flex-shrink-0">
+        <SidebarContent />
+      </div>
+      <AnimatePresence>
+        {isOpen && (
+            <>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="fixed inset-0 z-30 bg-black/50 md:hidden no-print" onClick={onClose} />
+                <motion.div initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} className="fixed top-0 left-0 h-full z-40 md:hidden no-print">
+                    <SidebarContent />
+                </motion.div>
+            </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+export default Sidebar;
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\components\dashboard\SupplierCostsTable.tsx
+================================================================================
+'use client';
+
+import { useState } from 'react';
+import { usePricingStore } from '@/store/pricingStore';
+import { SKU, Supplier, CostDetail } from '@/lib/types';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import { Plus } from 'lucide-react';
+import { formatCurrency } from '@/lib/formatters';
+
+const anchorSuppliers: Supplier[] = ['Exide', 'Willard'];
+
+export default function SupplierCostsTable() {
+  const { suppliers, supplierCosts, updateCostDetail, addSupplier } = usePricingStore();
+  const [activeTab, setActiveTab] = useState<Supplier>(suppliers[0]);
+
+  const skus = Object.keys(supplierCosts);
+
+  const handleCostChange = (sku: SKU, supplier: Supplier, field: keyof CostDetail, value: string) => {
+    const newAmount = parseFloat(value);
+    if (!isNaN(newAmount)) {
+      const currentDetails = supplierCosts[sku]?.[supplier] || { invoicePrice: 0, scrapLoading: 0 };
+      const newDetails = { ...currentDetails, [field]: newAmount };
+      updateCostDetail(sku, supplier, newDetails);
+    }
+  };
+
+  const handleAddSupplier = () => {
+    const newSupplierName = prompt("Enter the name for the new supplier:");
+    if (newSupplierName) {
+      addSupplier(newSupplierName);
+      setActiveTab(newSupplierName);
+    }
+  };
+
+  const isAnchor = anchorSuppliers.includes(activeTab);
+
+  return (
+    <Card padding="none">
+      <div className="flex justify-between items-center border-b border-gray-700 px-6">
+        <nav className="-mb-px flex space-x-4" aria-label="Tabs">
+          {suppliers.map((supplier) => (
+            <button key={supplier} onClick={() => setActiveTab(supplier)} className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === supplier ? 'border-red-500 text-red-500' : 'border-transparent text-gray-400 hover:text-white hover:border-gray-500'}`}>
+              {supplier}
+            </button>
+          ))}
+        </nav>
+        <Button onClick={handleAddSupplier} size="sm" variant="secondary">
+            <Plus className="h-4 w-4 mr-2" /> Add Supplier
+        </Button>
+      </div>
+
+      <div key={activeTab} className="overflow-x-auto">
+        <table className="min-w-full">
+            <thead className="bg-gray-900/50">
+                <tr>
+                    <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6">SKU</th>
+                    <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">{isAnchor ? 'Cost Price' : 'Invoice Price'}</th>
+                    {!isAnchor && <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">Scrap Loading</th>}
+                    {!isAnchor && <th className="px-3 py-3.5 text-left text-sm font-semibold text-white">Actual Cost</th>}
+                </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-700 bg-gray-800">
+                {skus.map((sku) => {
+                    const costDetail = supplierCosts[sku]?.[activeTab] || { invoicePrice: 0, scrapLoading: 0};
+                    const actualCost = costDetail.invoicePrice - costDetail.scrapLoading;
+                    return (
+                        <tr key={sku} className="hover:bg-gray-700/50">
+                            <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-6">{sku}</td>
+                            <td className="whitespace-nowrap px-3 py-4">
+                                <input type="number" defaultValue={costDetail.invoicePrice.toFixed(2)} onBlur={(e) => handleCostChange(sku, activeTab, 'invoicePrice', e.target.value)} className="w-32 rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"/>
+                            </td>
+                            {!isAnchor && (
+                                <td className="whitespace-nowrap px-3 py-4">
+                                    <input type="number" defaultValue={costDetail.scrapLoading.toFixed(2)} onBlur={(e) => handleCostChange(sku, activeTab, 'scrapLoading', e.target.value)} className="w-32 rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"/>
+                                </td>
+                            )}
+                            {!isAnchor && (
+                                <td className="whitespace-nowrap px-3 py-4 text-sm font-bold text-green-400">{formatCurrency(actualCost)}</td>
+                            )}
+                        </tr>
+                    )
+                })}
+            </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\components\ui\Button.tsx
+================================================================================
+'use client';
+
+import React, { ReactNode } from 'react';
+import { motion } from 'framer-motion';
+
+interface ButtonProps {
+  children: ReactNode;
+  variant?: 'primary' | 'secondary' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
+  href?: string;
+  onClick?: () => void;
+  className?: string;
+  disabled?: boolean;
+  type?: 'submit' | 'button' | 'reset';
+}
+
+const Button = ({ 
+  children, 
+  variant = 'primary', 
+  size = 'md', 
+  href, 
+  onClick, 
+  className = '',
+  disabled = false,
+  type = 'button'
+}: ButtonProps) => {
+  const baseClasses = 'inline-flex items-center justify-center font-semibold rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900';
+  
+  const variants = {
+    primary: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-lg hover:shadow-xl shadow-red-900/40',
+    secondary: 'bg-gray-700 text-white hover:bg-gray-600 focus:ring-gray-500 shadow-lg hover:shadow-xl',
+    outline: 'border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white focus:ring-red-500'
+  };
+  
+  const sizes = {
+    sm: 'px-4 py-2 text-sm',
+    md: 'px-6 py-3 text-base',
+    lg: 'px-8 py-4 text-lg'
+  };
+  
+  const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`;
+  
+  if (href) {
+    return (
+      <motion.a
+        href={href}
+        whileHover={disabled ? {} : { scale: 1.05, y: -2 }}
+        whileTap={disabled ? {} : { scale: 0.95 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+        className={classes}
+      >
+        {children}
+      </motion.a>
+    );
+  }
+
+  return (
+    <motion.button
+      type={type}
+      onClick={disabled ? undefined : onClick}
+      whileHover={disabled ? {} : { scale: 1.05, y: -2 }}
+      whileTap={disabled ? {} : { scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+      className={classes}
+      disabled={disabled}
+    >
+      {children}
+    </motion.button>
+  );
+};
+
+export default Button;
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\components\ui\Card.tsx
+================================================================================
+'use client';
+
+import React, { ReactNode } from 'react';
+import { motion } from 'framer-motion';
+
+interface CardProps {
+  children: ReactNode;
+  className?: string;
+  hoverEffect?: boolean;
+  padding?: 'none' | 'sm' | 'md' | 'lg';
+}
+
+const Card = ({ children, className = '', hoverEffect = false, padding = 'md' }: CardProps) => {
+  const paddings = {
+    none: 'p-0',
+    sm: 'p-4',
+    md: 'p-6',
+    lg: 'p-8'
+  };
+  
+  const baseClasses = `bg-gray-800 border border-white/10 shadow-soft rounded-lg ${paddings[padding]} ${className}`;
+  
+  if (hoverEffect) {
+    return (
+      <motion.div
+        whileHover={{ y: -5 }}
+        transition={{ duration: 0.3 }}
+        className={`${baseClasses} hover:border-red-500/50 transition-colors`}
+      >
+        {children}
+      </motion.div>
+    );
+  }
+  
+  return (
+    <div className={baseClasses}>
+      {children}
+    </div>
+  );
+};
+
+export default Card;
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\data\initialData.ts
+================================================================================
+import { SupplierCosts, DesiredGPs, Brand, Supplier, SKU, CostDetail } from '@/lib/types';
+
+export const INITIAL_SUPPLIERS: Supplier[] = ['Exide', 'Willard', 'Rezist', 'Enertec', 'Electro City'];
+
+export const SCRAP_VALUES: Record<string, number> = {
+  standard: 150,
+  large: 250,
+  none: 0
+};
+
+// --- UPDATED SECTION ---
+// This object now correctly maps each SKU to its scrap category based on your lists.
+export const SKU_SCRAP_CATEGORIES: Record<SKU, 'standard' | 'large'> = {
+  // Standard SKUs (R150)
+  '610': 'standard',
+  '611': 'standard',
+  '612': 'standard',
+  '615': 'standard',
+  '616': 'standard',
+  '619': 'standard',
+  '621': 'standard',
+  '622': 'standard',
+  '628': 'standard',
+  '630': 'standard',
+  '631': 'standard',
+  '634': 'standard',
+  '636': 'standard',
+  '636CS / HT': 'standard',
+  '638': 'standard',
+  '639': 'standard',
+  '640 / 643': 'standard',
+  '646': 'standard',
+  '651': 'standard',
+  '652': 'standard',
+  '652PS 75Ah': 'standard',
+  '657': 'standard',
+  '659': 'standard',
+  '612AGM': 'standard',
+  '646AGM': 'standard',
+  '652AGM': 'standard',
+  'RR0': 'standard',
+  'RR1': 'standard',
+
+  // Large SKUs (R250)
+  '650': 'large',
+  '658': 'large',
+  '668': 'large',
+  '669': 'large',
+  '674': 'large',
+  '682': 'large',
+  '683': 'large',
+  '689': 'large',
+  '690': 'large',
+  '692': 'large',
+  '695': 'large',
+  '696': 'large',
+  'SMF100 / 674TP': 'large',
+  'SMF101 / 674SP': 'large',
+  '668AGM': 'large',
+  '658AGM': 'large',
+  '105AGM': 'large'
+};
+
+const rawCostData = [
+    { size: '610', exide: 948.07, willard: 979.00, rezist: 0.00 },
+    { size: '611', exide: 948.07, willard: 979.00, rezist: 0.00 },
+    { size: '612', exide: 971.80, willard: 928.00, rezist: 0.00 },
+    { size: '615', exide: 888.18, willard: 928.00, rezist: 0.00 },
+    { size: '616', exide: 888.18, willard: 928.00, rezist: 0.00 },
+    { size: '619', exide: 925.47, willard: 964.00, rezist: 415.00 },
+    { size: '621', exide: 1066.72, willard: 1070.00, rezist: 0.00 },
+    { size: '622', exide: 1066.72, willard: 1070.00, rezist: 0.00 },
+    { size: '628', exide: 1050.90, willard: 1089.00, rezist: 490.00 },
+    { size: '630', exide: 971.80, willard: 966.00, rezist: 0.00 },
+    { size: '631', exide: 971.80, willard: 966.00, rezist: 0.00 },
+    { size: '634', exide: 948.07, willard: 1007.00, rezist: 0.00 },
+    { size: '636', exide: 932.25, willard: 1007.00, rezist: 0.00 },
+    { size: '636CS / HT', exide: 1068.98, willard: 1007.00, rezist: 0.00 },
+    { size: '638', exide: 1159.38, willard: 1224.00, rezist: 0.00 },
+    { size: '639', exide: 1159.38, willard: 1224.00, rezist: 0.00 },
+    { size: '640 / 643', exide: 1334.53, willard: 1242.00, rezist: 0.00 },
+    { size: '646', exide: 1248.65, willard: 1242.00, rezist: 495.00 },
+    { size: '651', exide: 1309.67, willard: 1333.00, rezist: 0.00 },
+    { size: '652', exide: 1444.14, willard: 1449.00, rezist: 750.00 },
+    { size: '652PS 75Ah', exide: 1594.43, willard: 0.00, rezist: 0.00 },
+    { size: '657', exide: 1444.14, willard: 1449.00, rezist: 0.00 },
+    { size: '659', exide: 2095.02, willard: 1632.00, rezist: 0.00 },
+    { size: '650', exide: 1578.61, willard: 1547.00, rezist: 0.00 },
+    { size: '658', exide: 1959.42, willard: 2009.00, rezist: 1220.00 },
+    { size: '668', exide: 1957.16, willard: 1808.00, rezist: 790.00 },
+    { size: '669', exide: 1957.16, willard: 1808.00, rezist: 0.00 },
+    { size: '674', exide: 1902.92, willard: 1890.00, rezist: 0.00 },
+    { size: '682', exide: 2465.66, willard: 2486.00, rezist: 0.00 },
+    { size: '683', exide: 2465.66, willard: 2486.00, rezist: 0.00 },
+    { size: '689', exide: 2905.23, willard: 2912.00, rezist: 0.00 },
+    { size: '690', exide: 2905.23, willard: 2912.00, rezist: 0.00 },
+    { size: '692', exide: 3626.17, willard: 3330.00, rezist: 0.00 },
+    { size: '695', exide: 4605.88, willard: 0.00, rezist: 0.00 },
+    { size: '696', exide: 3944.83, willard: 3002.00, rezist: 0.00 },
+    { size: 'SMF100 / 674TP', exide: 2057.73, willard: 2421.00, rezist: 0.00 },
+    { size: 'SMF101 / 674SP', exide: 2057.73, willard: 2421.00, rezist: 0.00 },
+    { size: '612AGM', exide: 2257.74, willard: 0.00, rezist: 0.00 },
+    { size: '646AGM', exide: 2396.73, willard: 2580.00, rezist: 0.00 },
+    { size: '652AGM', exide: 2684.88, willard: 3170.00, rezist: 0.00 },
+    { size: '668AGM', exide: 3006.93, willard: 3476.00, rezist: 0.00 },
+    { size: '658AGM', exide: 3369.66, willard: 3692.00, rezist: 0.00 },
+    { size: '105AGM', exide: 3766.29, willard: 4035.00, rezist: 0.00 },
+    { size: 'RR0', exide: 981.97, willard: 1188.00, rezist: 0.00 },
+    { size: 'RR1', exide: 1119.83, willard: 1410.00, rezist: 0.00 },
+];
+
+const costs: SupplierCosts = {};
+const gps: DesiredGPs = {};
+
+const createCostDetail = (price: number, scrap: number = 0): CostDetail => ({
+    invoicePrice: price,
+    scrapLoading: scrap
+});
+
+rawCostData.forEach(item => {
+  const sku = String(item.size);
+  const scrapCategory = SKU_SCRAP_CATEGORIES[sku] || 'standard'; // Default to standard if not found
+  const scrapValue = SCRAP_VALUES[scrapCategory] || 0;
+  
+  costs[sku] = {
+    Exide: createCostDetail(item.exide),
+    Willard: createCostDetail(item.willard),
+    Rezist: createCostDetail(item.rezist, scrapValue),
+    Enertec: createCostDetail(0, scrapValue), // Automatically applies correct scrap value
+    'Electro City': createCostDetail(0, scrapValue), // Automatically applies correct scrap value
+  };
+  gps[sku] = { gTierGP: 20, bTierGP: 30, sTierGP: 40 };
+});
+
+// Per-SKU GP Overrides
+gps['646'] = { gTierGP: 20, bTierGP: 32.5, sTierGP: 45 };
+gps['652'] = { gTierGP: 20, bTierGP: 35, sTierGP: 50 };
+gps['668'] = { gTierGP: 20, bTierGP: 35, sTierGP: 50 };
+gps['658'] = { gTierGP: 20, bTierGP: 35, sTierGP: 50 };
+
+export const INITIAL_SUPPLIER_COSTS: SupplierCosts = costs;
+export const INITIAL_DESIRED_GPS: DesiredGPs = gps;
+
+export const SELLING_BRANDS: Brand[] = ['Exide', 'Willard', 'Novax Premium', 'Novax 18', 'Global'];
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\lib\calculations.ts
+================================================================================
+import {
+  SKU,
+  SupplierCosts,
+  Rounding,
+  Branch,
+  PriceTier,
+  DesiredGPs,
+  CalculatedPrices,
+} from './types';
+
+const VAT_RATE = 1.15;
+
+function roundToNearest(value: number, nearest: number): number {
+  if (nearest === 0 || nearest === 1) return value;
+  return Math.round(value / nearest) * nearest;
+}
+
+const calculatePriceFromGp = (cost: number, gp: number, roundingValue: number) => {
+  if (cost <= 0 || gp >= 100) return { incVat: null, exVat: null };
+  const rawExVat = cost / (1 - gp / 100);
+  const incVatRounded = roundToNearest(rawExVat * VAT_RATE, roundingValue);
+  const exVatFinal = incVatRounded / VAT_RATE;
+  return { incVat: incVatRounded, exVat: exVatFinal };
+};
+
+export function calculateAllPrices(
+  supplierCosts: SupplierCosts,
+  branch: Branch,
+  desiredGPs: DesiredGPs,
+  rounding: Rounding,
+  includeVAT: boolean
+): CalculatedPrices {
+  
+  const calculatedData: CalculatedPrices = {};
+  const roundingValue = rounding === 'NearestR50' ? 50 : 1;
+
+  for (const sku in supplierCosts) {
+    const skuTyped = sku as SKU;
+    const costs = supplierCosts[skuTyped];
+    const exideCost = costs.Exide?.invoicePrice || 0;
+    const willardCost = costs.Willard?.invoicePrice || 0;
+
+    if (exideCost === 0 || willardCost === 0) {
+      calculatedData[skuTyped] = { 
+        G: { 'Exide': null, 'Willard': null, 'Global': null, 'Novax 18': null, 'Novax Premium': null },
+        B: { 'Exide': null, 'Willard': null, 'Global': null, 'Novax 18': null, 'Novax Premium': null },
+        S: { 'Exide': null, 'Willard': null, 'Global': null, 'Novax 18': null, 'Novax Premium': null },
+        A: { 'Exide': null, 'Willard': null, 'Global': null, 'Novax 18': null, 'Novax Premium': null }
+      };
+      continue;
+    }
+    
+    const avgCost = (exideCost + willardCost) / 2;
+    const targets = desiredGPs[skuTyped] || { gTierGP: 20, bTierGP: 30, sTierGP: 40 };
+
+    const gTier = calculatePriceFromGp(avgCost, targets.gTierGP, roundingValue);
+    const bTier = calculatePriceFromGp(avgCost, targets.bTierGP, roundingValue);
+    const sTier = calculatePriceFromGp(avgCost, targets.sTierGP, roundingValue);
+
+    if(!gTier.incVat || !bTier.incVat || !sTier.incVat) continue;
+    
+    const rawATierIncVat = (bTier.incVat + sTier.incVat) / 2;
+    const aTierIncVat = roundToNearest(rawATierIncVat, roundingValue);
+    const aTierExVat = aTierIncVat / VAT_RATE;
+    
+    // FIX: Explicitly type this object to avoid using 'any' later
+    const albertonTierPrices: Record<PriceTier, { exVat: number | null }> = {
+        G: { exVat: gTier.exVat }, B: { exVat: bTier.exVat },
+        S: { exVat: sTier.exVat }, A: { exVat: aTierExVat },
+    };
+    
+    // FIX: Initialize with a simple empty object, as the type allows properties to be added.
+    calculatedData[skuTyped] = {};
+
+    for (const tier in albertonTierPrices) {
+      const tierTyped = tier as PriceTier;
+      // FIX: Access the property directly now that the object is properly typed.
+      let anchorPriceExVat = albertonTierPrices[tierTyped].exVat;
+
+      if (anchorPriceExVat === null) {
+          calculatedData[skuTyped]![tierTyped] = { 'Exide': null, 'Willard': null, 'Global': null, 'Novax 18': null, 'Novax Premium': null };
+          continue;
+      }
+
+      if (branch === 'Vanderbijlpark') {
+        const rawVdbPriceExVat = anchorPriceExVat / 1.1;
+        anchorPriceExVat = roundToNearest(rawVdbPriceExVat * VAT_RATE, roundingValue) / VAT_RATE;
+      }
+      
+      const priceMultiplier = includeVAT ? VAT_RATE : 1;
+
+      const novaxPremiumPrice = anchorPriceExVat * (1 - 0.10);
+      const novax18Price = novaxPremiumPrice * (1 - 0.10);
+      const globalPrice = novax18Price * (1 - 0.10);
+
+      const roundedNovaxPremiumPriceExVat = roundToNearest(novaxPremiumPrice * VAT_RATE, roundingValue) / VAT_RATE;
+      const roundedNovax18PriceExVat = roundToNearest(novax18Price * VAT_RATE, roundingValue) / VAT_RATE;
+      const roundedGlobalPriceExVat = roundToNearest(globalPrice * VAT_RATE, roundingValue) / VAT_RATE;
+      
+      calculatedData[skuTyped]![tierTyped] = {
+        'Exide': anchorPriceExVat * priceMultiplier,
+        'Willard': anchorPriceExVat * priceMultiplier,
+        'Global': roundedGlobalPriceExVat * priceMultiplier,
+        'Novax 18': roundedNovax18PriceExVat * priceMultiplier,
+        'Novax Premium': roundedNovaxPremiumPriceExVat * priceMultiplier,
+      };
+    }
+  }
+  return calculatedData;
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\lib\formatters.ts
+================================================================================
+// This file will hold shared helper functions for formatting data.
+
+/**
+ * Formats a number as South African Rand (ZAR).
+ * Returns 'N/A' if the value is not a valid number.
+ */
+export const formatCurrency = (value: number | null): string => {
+  if (value === null || typeof value === 'undefined' || isNaN(value)) {
+    return 'N/A';
+  }
+  return value.toLocaleString('en-ZA', {
+    style: 'currency',
+    currency: 'ZAR',
+  });
+};
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\lib\types.ts
+================================================================================
+// This file defines the "shape" of all the important data in our application.
+
+// User-related types for Authentication
+export type UserRole = 'Boss' | 'Manager' | 'Technician' | 'Client';
+export interface User {
+  id: string;
+  name: string;
+  role: UserRole;
+}
+
+// Pricing App specific types
+export type SKU = string;
+export type Brand = 'Exide' | 'Willard' | 'Novax Premium' | 'Novax 18' | 'Global' | string;
+export type Supplier = 'Exide' | 'Willard' | 'Rezist' | 'Enertec' | 'Electro City' | string;
+export type Branch = 'Alberton' | 'Vanderbijlpark';
+export type PriceTier = 'G' | 'B' | 'A' | 'S';
+export type Rounding = 'None' | 'NearestR50';
+export type ScrapCategory = 'standard' | 'large' | 'none';
+
+export interface CostDetail {
+  invoicePrice: number;
+  scrapLoading: number;
+}
+export type SupplierCosts = Record<SKU, Record<Supplier, CostDetail>>;
+export type DesiredGPs = Record<SKU, { gTierGP: number; bTierGP: number; sTierGP: number; }>;
+
+// --- THIS IS THE MISSING TYPE DEFINITION ---
+export type CalculatedPrices = Record<SKU, Partial<Record<PriceTier, Record<Brand, number | null>>>>;
+
+export interface ExportData {
+  suppliers: Supplier[];
+  supplierCosts: SupplierCosts;
+  desiredGPs: DesiredGPs;
+}
+
+export interface PricingState extends ExportData {
+  branch: Branch;
+  includeVAT: boolean;
+  rounding: Rounding;
+  activeTier: PriceTier;
+}
+
+export interface PricingStateWithActions extends PricingState {
+  importData: (data: ExportData) => void;
+  addSupplier: (name: string) => void;
+  setBranch: (branch: Branch) => void;
+  setIncludeVAT: (include: boolean) => void;
+  setRounding: (rounding: Rounding) => void;
+  setActiveTier: (tier: PriceTier) => void;
+  updateCostDetail: (sku: SKU, supplier: Supplier, costDetail: CostDetail) => void;
+  updateDesiredGP: (sku: SKU, gTierGP: number, bTierGP: number, sTierGP: number) => void;
+}
+
+================================================================================
+FILE PATH: C:\Users\shop\Downloads\nextjs-tailwind-starter-templategbsapriceing\nextjs-tailwind-starter\src\store\pricingStore.ts
+================================================================================
+import { create } from 'zustand';
+import { INITIAL_SUPPLIER_COSTS, INITIAL_DESIRED_GPS, INITIAL_SUPPLIERS } from '@/data/initialData';
+import { calculateAllPrices } from '@/lib/calculations';
+import type {
+  PricingStateWithActions,
+  Branch,
+  Rounding,
+  SKU,
+  Supplier,
+  PriceTier,
+  // FIX: Removed unused 'PricingState' import
+  ExportData,
+  CostDetail,
+} from '@/lib/types';
+
+export const usePricingStore = create<PricingStateWithActions>((set) => ({
+  // --- STATE ---
+  suppliers: INITIAL_SUPPLIERS,
+  branch: 'Alberton',
+  includeVAT: true,
+  rounding: 'NearestR50',
+  activeTier: 'S',
+  supplierCosts: INITIAL_SUPPLIER_COSTS,
+  desiredGPs: INITIAL_DESIRED_GPS,
+
+  // --- ACTIONS ---
+  importData: (data: ExportData) => set({ ...data }),
+
+  addSupplier: (name: string) => 
+    set((state) => {
+      if (state.suppliers.includes(name) || !name) return state;
+      const newSuppliers = [...state.suppliers, name];
+      const newSupplierCosts = { ...state.supplierCosts };
+      for (const sku in newSupplierCosts) {
+        newSupplierCosts[sku][name] = { invoicePrice: 0, scrapLoading: 150 }; // Default new suppliers
+      }
+      return { suppliers: newSuppliers, supplierCosts: newSupplierCosts };
+    }),
+
+  setBranch: (branch: Branch) => set({ branch }),
+  setIncludeVAT: (include: boolean) => set({ includeVAT: include }),
+  setRounding: (rounding: Rounding) => set({ rounding }),
+  setActiveTier: (tier: PriceTier) => set({ activeTier: tier }),
+
+  updateCostDetail: (sku: SKU, supplier: Supplier, costDetail: CostDetail) =>
+    set((state) => ({
+      supplierCosts: {
+        ...state.supplierCosts,
+        [sku]: { ...state.supplierCosts[sku], [supplier]: costDetail },
+      },
+    })),
+
+  updateDesiredGP: (sku: SKU, gTierGP: number, bTierGP: number, sTierGP: number) =>
+    set((state) => ({
+      desiredGPs: {
+        ...state.desiredGPs,
+        [sku]: { gTierGP, bTierGP, sTierGP },
+      },
+    })),
+}));
+
+export const useCalculatedPrices = () => {
+  const { supplierCosts, branch, desiredGPs, rounding, includeVAT } = usePricingStore();
+  return calculateAllPrices(supplierCosts, branch, desiredGPs, rounding, includeVAT);
+};
